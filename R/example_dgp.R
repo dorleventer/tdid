@@ -44,7 +44,7 @@ example_dgp <- function(n,seed = NULL) {
   # Period 2: if treated then Y2 = Y2_1; otherwise, Y2 = Y2_0
   Y2_obs <- ifelse(W == 1, Y2_1, Y2_0)
 
-  data1 = tibble(
+  data1 = data.frame(
     id = 1:n,
     time = 1,
     group = group,
@@ -53,7 +53,7 @@ example_dgp <- function(n,seed = NULL) {
     Y = Y1_obs
   )
 
-  data2 = tibble(
+  data2 = data.frame(
     id = 1:n,
     time = 2,
     group = group,
@@ -62,7 +62,7 @@ example_dgp <- function(n,seed = NULL) {
     Y = Y2_obs
   )
 
-  data = bind_rows(data1, data2)
+  data = rbind(data1, data2)
 
   return(data)
 }
