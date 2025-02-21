@@ -1,3 +1,6 @@
+#' Data prepartion
+#'
+#' @export
 prep_data = function(data) {
   data = data |> arrange(id, time)
   ids = data$id[data$time == 2]

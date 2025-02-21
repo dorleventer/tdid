@@ -1,4 +1,14 @@
-example_dgp <- function(n, sigma_X = 1, p_treat = 0.5, seed = NULL) {
+#' Example DGP
+#'
+#' The data generating process of the example
+#'
+#' @param n Number of units
+#' @param seed The random seed
+#'
+#' @return A 2-by-2-by-2 dataset
+#'
+#' @export
+example_dgp <- function(n,seed = NULL) {
   if (!is.null(seed)) set.seed(seed) else set.seed(42)
 
   # Generate group membership: randomly assign "A" or "B"
@@ -6,11 +16,11 @@ example_dgp <- function(n, sigma_X = 1, p_treat = 0.5, seed = NULL) {
 
   # Draw the time-invariant covariate X based on group membership
   X <- ifelse(group == "A",
-              rnorm(n, mean = 1, sd = sigma_X),
-              rnorm(n, mean = 3, sd = sigma_X))
+              rnorm(n, mean = 1, sd = 1),
+              rnorm(n, mean = 3, sd = 1))
 
   # Treatment assignments:
-  W <- rbinom(n, size = 1, prob = p_treat)
+  W <- rbinom(n, size = 1, prob = .5)
 
   # Generate error terms for each period
   e1 <- rnorm(n, mean = 0, sd = 1)

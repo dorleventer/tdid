@@ -1,3 +1,5 @@
+#' Two-by-two comparisons
+#' @export
 two_by_two = function(data_did, g, e, g_prime = 1, e_prime = 1) {
   n = nrow(data_did)
   data_did = data_did |>

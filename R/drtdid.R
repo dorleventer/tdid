@@ -1,3 +1,12 @@
+#' Double robust TDID estimation
+#'
+#' PUT Desc here
+#'
+#' @param data The data
+#'
+#' @return DID and TDID estimates
+#'
+#' @export
 drtdid <-function(data){
   # prep data
   data_did = prep_data(data) |>

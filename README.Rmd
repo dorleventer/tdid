@@ -25,8 +25,7 @@ These R functions calculate triple difference-in-differences (TDID) with control
 You can install the development version of tdid from [GitHub](https://github.com/) with:
 
 ``` {r}
-install.packages("pak")
-pak::pak("dorleventer/tdid")
+devtools::install_github("dorleventer/tdid")
 ```
 
 ## Example
@@ -35,4 +34,5 @@ Load a sample based on the DGP of the example in the paper.
 
 ```{r}
 library(tdid)
+example_dgp()
 ```
