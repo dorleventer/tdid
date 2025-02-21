@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-These R functions calculate triple difference-in-differences (TDID) using double-robust estimators. 
+These R functions calculate triple difference-in-differences (TDID) with controls using double-robust estimators. 
 
 ## Installation
 
@@ -31,9 +31,8 @@ pak::pak("dorleventer/tdid")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Load a sample based on the DGP of the example in the paper. 
 
-```{r example}
+```{r}
 library(tdid)
-## basic example code
 ```
