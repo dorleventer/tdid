@@ -54,7 +54,7 @@ Monte Carlo simulations
 ```{r}
 reps = 2000
 N = 2000
-res = parallel::mclapply(1:reps, single_it, n = N) |> bind_rows()
+res = parallel::mclapply(1:reps, single_it, n = N) |> dplyr::bind_rows()
 ```
 
 Plot results
