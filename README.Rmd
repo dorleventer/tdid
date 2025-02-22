@@ -28,3 +28,6 @@ You can install the development version of tdid from [GitHub](https://github.com
 devtools::install_github("dorleventer/tdid")
 ```
 
+## Example
+
+An example, as well as replication of the graph from the paper, is given in the [example vignette]( https://dorleventer.github.io/tdid/articles/tdid-example.html).
