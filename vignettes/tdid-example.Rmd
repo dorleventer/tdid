@@ -1,5 +1,5 @@
 ---
-title: "TDID"
+title: "tdid-example"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{tdid-example}
