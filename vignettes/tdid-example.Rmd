@@ -1,0 +1,76 @@
+---
+title: "TDID"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tdid-example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# How to run TDID
+
+Load the library
+
+```{r setup}
+library(tdid)
+library(tidyverse)
+```
+
+Upload data
+
+```{r}
+data = tdid::example_dgp(1000)
+head(data)
+```
+
+Estimate TDID with controls
+
+```{r}
+tdid::drtdid(data)
+```
+
+# Replicate the graph from the paper
+
+Single iteration
+
+```{r}
+single_it = function(n, seed) {
+  data = example_dgp(n = n, seed = seed)
+  mod = drtdid(data)
+  return(mod)
+}
+```
+
+Monte Carlo simulations
+-
+
+```{r}
+reps = 2000
+N = 2000
+res = parallel::mclapply(1:reps, single_it, n = N) |> bind_rows()
+```
+
+Plot results
+
+```{r}
+res |> 
+  mutate(diff_dr = dr_A - dr_B) |> 
+  ggplot() + 
+  geom_density(aes(x = tau, fill = "DR A - WDR B"), alpha = .5) +
+  geom_density(aes(x = diff_dr, fill = "DR A - DR B"), alpha = .5) +
+  geom_vline(aes(xintercept = mean(res$dr_A - res$dr_B), color = "DR A - DR B"), linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(res$tau), color = "DR A - WDR B"), linetype = "dashed", size = 1) +
+  scale_x_continuous(breaks = -3:5, limits = c(-3, 5)) +
+  guides(color = "none") + 
+  theme(legend.position = "bottom") + 
+  labs(x = "Estimated Difference", y = "Density", fill = NULL)
+  
+```
+
