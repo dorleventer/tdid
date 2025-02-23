@@ -62,24 +62,23 @@
 </h2>
 <p>You can install the development version of tdid from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dorleventer/tdid"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Using GitHub PAT from the git credential store.</span></span>
-<span><span class="co">#&gt; Downloading GitHub repo dorleventer/tdid@HEAD</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── R CMD build ─────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;      checking for file ‘/private/var/folders/ls/2dzknzwx5q1fdfh311w86m3h0000gn/T/RtmpFLWyUg/remotes181367fc85c0/dorleventer-tdid-ca75ac5/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/ls/2dzknzwx5q1fdfh311w86m3h0000gn/T/RtmpFLWyUg/remotes181367fc85c0/dorleventer-tdid-ca75ac5/DESCRIPTION’</span></span>
-<span><span class="co">#&gt;   ─  preparing ‘tdid’:</span></span>
-<span><span class="co">#&gt;      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information</span></span>
-<span><span class="co">#&gt;   ─  checking for LF line-endings in source and make files and shell scripts</span></span>
-<span><span class="co">#&gt;   ─  checking for empty or unneeded directories</span></span>
-<span><span class="co">#&gt;   ─  building ‘tdid_0.0.0.9000.tar.gz’</span></span>
-<span><span class="co">#&gt;      </span></span>
-<span><span class="co">#&gt; </span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dorleventer/tdid"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
 <p>An example, as well as replication of the graph from the paper, is given in the <a href="https://dorleventer.github.io/tdid/articles/tdid-example.html">example vignette</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="in-progress">In Progress<a class="anchor" aria-label="anchor" href="#in-progress"></a>
+</h2>
+<p>Currently this is a bare-bones package repo for replication of the results in the paper. In the future will upgrade such that</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Handle different names from outcome, time, …</label></li>
+<li><label><input type="checkbox">Allow inputting covariate formulas</label></li>
+<li><label><input type="checkbox">Useage of different ML learners for the propensity score and outcome regression</label></li>
+<li><label><input type="checkbox">Cross-fitting of the propensity score and outcome regression</label></li>
+</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
