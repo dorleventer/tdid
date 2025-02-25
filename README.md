@@ -7,7 +7,8 @@
 <!-- badges: end -->
 
 These R functions calculate triple difference-in-differences (TDID) with
-controls using double-robust estimators.
+controls using double-robust estimators, based on [Leventer
+(2025)](https://arxiv.org/abs/2502.16126).
 
 ## Installation
 
@@ -34,3 +35,8 @@ results in the paper. In the future will upgrade such that
 - [ ] Useage of different ML learners for the propensity score and
   outcome regression
 - [ ] Cross-fitting of the propensity score and outcome regression
+
+## References
+
+Leventer, D. (2025). Conditional Triple Difference-in-Differences. arXiv
+preprint arXiv:2502.16126.
