@@ -12,10 +12,10 @@ example_dgp <- function(n,seed = NULL) {
   if (!is.null(seed)) set.seed(seed) else set.seed(42)
 
   # Generate group membership: randomly assign "A" or "B"
-  group <- sample(c("A", "B"), size = n, replace = TRUE)
+  group <- sample(c("a", "b"), size = n, replace = TRUE)
 
   # Draw the time-invariant covariate X based on group membership
-  X <- ifelse(group == "A",
+  X <- ifelse(group == "a",
               rnorm(n, mean = 1, sd = 1),
               rnorm(n, mean = 3, sd = 1))
 
@@ -33,7 +33,7 @@ example_dgp <- function(n,seed = NULL) {
   Y2_0 <- X + W * X + e2
 
   # Treatment effects: tau(g, x)
-  tau <- ifelse(group == "A", 4 * X, X)
+  tau <- ifelse(group == "a", 4 * X, X)
 
   # Potential outcome for period 2 if treated (i.e., shift by tau)
   Y2_1 <- Y2_0 + tau
