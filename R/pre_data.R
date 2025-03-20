@@ -1,14 +1,62 @@
 #' Data prepartion
 #'
+#' @param data The data
+#' @param yname Name of outcome variable
+#' @param tname Name of time variable
+#' @param idname Name of id variable
+#' @param gname Name of group variable
+#' @param xformula Covariates to use in estimation of propensity score and outcome regression
+#'
 #' @export
-prep_data = function(data) {
-  data = data |> arrange(id, time)
-  ids = data$id[data$time == 2]
-  ypre = data$Y[data$time == 1]
-  ypost = data$Y[data$time == 2]
-  W = data$W[data$time == 2]
-  X = data$X[data$time == 2]
-  group = 1*(data$group[data$time == 2]=="A")
+data_prep <- function(data,
+                      group_name = "group",
+                      time_name = "time",
+                      id_name = "id",
+                      outcome_name = "Y",
+                      treat_name = "W",
+                      control_formula = "X",
+                      group_levels = c("a", "b")) {
 
-  return(data.frame(ids, Y_diff = ypost - ypre, W, X, group))
+  # make it a panel
+
+  time_vec  <- data[[time_name]]
+  id_vec    <- data[[id_name]]
+  y_vec     <- data[[outcome_name]]
+  w_vec     <- data[[treat_name]]
+  group_vec <- data[[group_name]]
+
+  # Check that group_vec contains exactly the expected two groups
+  if(!all(sort(unique(group_vec)) == sort(group_levels))){
+    stop("Group variable does not match expected levels: ", paste(group_levels, collapse = ", "))
+  }
+
+  # Determine time points
+  t1 <- min(time_vec)
+  t2 <- max(time_vec)
+
+  # Subset observations for the final time period
+  ids   <- id_vec[time_vec == t2]
+  y1    <- y_vec[time_vec == t1]
+  y2    <- y_vec[time_vec == t2]
+  y_diff <- y2 - y1
+  W     <- w_vec[time_vec == t2]
+  # Define group indicator: 1 if group equals the first level (e.g., "A"), 0 otherwise.
+  group <- as.numeric(data[[group_name]][time_vec == t2] == group_levels[1])
+
+  # Allow full formula specification or a character string for control covariates.
+  if (inherits(control_formula, "formula")) {
+    formula_obj <- control_formula
+  } else {
+    formula_obj <- as.formula(paste0("~", control_formula))
+  }
+
+  X <- stats::model.matrix(
+    formula_obj,
+    stats::model.frame(formula_obj, data = data[time_vec == t2, ], na.action = na.pass)
+  )
+
+  return(list(
+    data_did = data.frame(ids = ids, y1 = y1, y2 = y2, y_diff = y_diff, W = W, group = group),
+    X_mat = X[, -1, drop = FALSE]
+  ))
 }
