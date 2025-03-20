@@ -17,7 +17,13 @@ data_prep <- function(data,
                       control_formula = "X",
                       group_levels = c("a", "b")) {
 
-  # make it a panel
+  # drop NAs
+  data = data |> tidyr::drop_na()
+
+  # make panel
+  time_vec  <- data[["time"]]
+  data = data[which(time_vec == target_year | time_vec == reference_year),]
+  data = BMisc::makeBalancedPanel(data, id_name, time_name)
 
   time_vec  <- data[[time_name]]
   id_vec    <- data[[id_name]]
@@ -27,7 +33,7 @@ data_prep <- function(data,
 
   # Check that group_vec contains exactly the expected two groups
   if(!all(sort(unique(group_vec)) == sort(group_levels))){
-    stop("Group variable does not match expected levels: ", paste(group_levels, collapse = ", "))
+    stop("Group variable does not match expected levels: c(a, b)")
   }
 
   # Determine time points
