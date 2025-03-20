@@ -19,15 +19,19 @@ drtdid(
 \arguments{
 \item{data}{The data}
 
-\item{yname}{Name of outcome variable}
+\item{group_name}{Name of group variable}
 
-\item{tname}{Name of time variable}
+\item{time_name}{Name of time variable}
 
-\item{idname}{Name of id variable}
+\item{id_name}{Name of id variable}
 
-\item{gname}{Name of group variable}
+\item{outcome_name}{Name of outcome variable}
 
-\item{xformula}{Covariates to use in estimation of propensity score and outcome regression}
+\item{treat_name}{Name of treatment variable}
+
+\item{control_formula}{Covariates to use in estimation of propensity score and outcome regression}
+
+\item{crossfit}{If true, estimation is done using 2-fold cross fitting}
 }
 \value{
 DID and TDID estimates
