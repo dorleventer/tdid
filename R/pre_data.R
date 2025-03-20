@@ -21,8 +21,6 @@ data_prep <- function(data,
   data = data |> tidyr::drop_na()
 
   # make panel
-  time_vec  <- data[["time"]]
-  data = data[which(time_vec == target_year | time_vec == reference_year),]
   data = BMisc::makeBalancedPanel(data, id_name, time_name)
 
   time_vec  <- data[[time_name]]
