@@ -26,7 +26,7 @@ library(ggplot2)
 Upload data
 
 ```{r}
-data = tdid::example_dgp(1000)
+data = tdid::example_dgp(1000) 
 head(data)
 ```
 
@@ -63,10 +63,10 @@ Plot results
 res |> 
   dplyr::mutate(diff_dr = dr_A - dr_B) |> 
   ggplot() + 
-  geom_density(aes(x = tau, fill = "DR A - WDR B"), alpha = .5) +
+  geom_density(aes(x = est, fill = "DR A - WDR B"), alpha = .5) +
   geom_density(aes(x = diff_dr, fill = "DR A - DR B"), alpha = .5) +
   geom_vline(aes(xintercept = mean(res$dr_A - res$dr_B), color = "DR A - DR B"), linetype = "dashed", size = 1) +
-  geom_vline(aes(xintercept = mean(res$tau), color = "DR A - WDR B"), linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(res$est), color = "DR A - WDR B"), linetype = "dashed", size = 1) +
   scale_x_continuous(breaks = -3:5, limits = c(-3, 5)) +
   guides(color = "none") + 
   theme(legend.position = "bottom") + 
