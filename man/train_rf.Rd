@@ -6,18 +6,6 @@
 \usage{
 train_rf(Y, X, num.trees = 500, ...)
 }
-\arguments{
-\item{Y}{Outcome (vector)}
-
-\item{X}{Covariates (matrix)}
-
-\item{num.trees}{Number of trees}
-
-\item{...}{additional options for ranger}
-}
-\value{
-A trained random forest model
-}
 \description{
 training random forest models
 }
