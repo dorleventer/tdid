@@ -44,13 +44,13 @@ data_prep <- function(data,
   y_diff <- y2 - y1
   W     <- w_vec[time_vec == t2]
   # Define group indicator: 1 if group equals the first level (e.g., "A"), 0 otherwise.
-  group <- as.numeric(data[[group_name]][time_vec == t2] == group_levels[1])
+  group <- as.numeric(data[[group_name]][time_vec == t2] == "a")
 
   # Allow full formula specification or a character string for control covariates.
   if (inherits(control_formula, "formula")) {
     formula_obj <- control_formula
   } else {
-    formula_obj <- as.formula(paste0("~", control_formula))
+    formula_obj <- stats::as.formula(paste0("~", control_formula))
   }
 
   X <- stats::model.matrix(
