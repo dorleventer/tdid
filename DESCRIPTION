@@ -1,5 +1,5 @@
 Package: tdid
-Title: What the Package Does (One Line, Title Case)
+Title: Estimation of treatment effects with Triple Differences with Controls
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
