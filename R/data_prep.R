@@ -32,11 +32,6 @@ data_prep <- function(data,
   w_vec     <- data[[treat_name]]
   group_vec <- data[[group_name]]
 
-  # Check that group_vec contains exactly the expected two groups
-  if(!all(sort(unique(group_vec)) == sort(c("a","b")))){
-    stop("Group variable does not match expected levels: c(a, b)")
-  }
-
   # Determine time points
   t1 <- min(time_vec)
   t2 <- max(time_vec)
@@ -47,8 +42,7 @@ data_prep <- function(data,
   y2    <- y_vec[time_vec == t2]
   y_diff <- y2 - y1
   W     <- w_vec[time_vec == t2]
-  # Define group indicator: 1 if group equals the first level (e.g., "A"), 0 otherwise.
-  group <- as.numeric(data[[group_name]][time_vec == t2] == "a")
+  group <- group_vec[time_vec == t2]
 
   # Allow full formula specification or a character string for control covariates.
   if (inherits(control_formula, "formula")) {
