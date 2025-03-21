@@ -5,17 +5,20 @@
 #' @param time_name Name of time variable
 #' @param id_name Name of id variable
 #' @param group_name Name of group variable
-#' @param treat_name Name of treatment / eligiblty variable
+#' @param target_group Character / numeric value of the value in group_name that corresponds to the target group (group "a" in the paper)
 #' @param control_formula Covariates to use in estimation of propensity score and outcome regression
 #'
 #' @export
 data_prep <- function(data,
                       group_name = "group",
+                      target_group = "a",
                       time_name = "time",
                       id_name = "id",
                       outcome_name = "Y",
                       treat_name = "W",
                       control_formula = "X") {
+
+  data$group = (data$group == target_group)*1
 
   # drop NAs
   data = data |> tidyr::drop_na()
@@ -56,7 +59,7 @@ data_prep <- function(data,
 
   X <- stats::model.matrix(
     formula_obj,
-    stats::model.frame(formula_obj, data = data[time_vec == t2, ], na.action = stats::na.pass)
+    stats::model.frame(formula_obj, data = data[time_vec == t2, ], na.action = na.pass)
   )
 
   return(list(

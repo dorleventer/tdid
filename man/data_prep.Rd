@@ -7,6 +7,7 @@
 data_prep(
   data,
   group_name = "group",
+  target_group = "a",
   time_name = "time",
   id_name = "id",
   outcome_name = "Y",
@@ -19,13 +20,13 @@ data_prep(
 
 \item{group_name}{Name of group variable}
 
+\item{target_group}{Character / numeric value of the value in group_name that corresponds to the target group (group "a" in the paper)}
+
 \item{time_name}{Name of time variable}
 
 \item{id_name}{Name of id variable}
 
 \item{outcome_name}{Name of outcome variable}
-
-\item{treat_name}{Name of treatment / eligiblty variable}
 
 \item{control_formula}{Covariates to use in estimation of propensity score and outcome regression}
 }

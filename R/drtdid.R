@@ -7,6 +7,7 @@
 #' @param time_name Name of time variable
 #' @param id_name Name of id variable
 #' @param group_name Name of group variable
+#' @param target_group Character / numeric value of the value in group_name that corresponds to the target group (group "a" in the paper)
 #' @param treat_name Name of treatment variable
 #' @param control_formula Covariates to use in estimation of propensity score and outcome regression
 #' @param type Type of model for outcome regression and propensity score estimation. Options are "parametric" (default) for OLS and logisitic regressions, "rf" for Random Forest, and "nn" for Neural Network
@@ -17,6 +18,7 @@
 #' @export
 drtdid <- function(data,
                    group_name = "group",
+                   target_group = "a",
                    time_name = "time",
                    id_name = "id",
                    outcome_name = "Y",
@@ -25,7 +27,7 @@ drtdid <- function(data,
                    type = "parametric",
                    crossfit = FALSE) {
   # Prepare data using the improved data_prep2 function
-  prep <- data_prep(data, group_name, time_name, id_name, outcome_name, treat_name, control_formula)
+  prep <- data_prep(data, group_name, target_group, time_name, id_name, outcome_name, treat_name, control_formula)
   data_did <- prep$data_did
   ids <- data_did$ids
 

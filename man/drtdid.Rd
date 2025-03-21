@@ -7,6 +7,7 @@
 drtdid(
   data,
   group_name = "group",
+  target_group = "a",
   time_name = "time",
   id_name = "id",
   outcome_name = "Y",
@@ -20,6 +21,8 @@ drtdid(
 \item{data}{The data}
 
 \item{group_name}{Name of group variable}
+
+\item{target_group}{Character / numeric value of the value in group_name that corresponds to the target group (group "a" in the paper)}
 
 \item{time_name}{Name of time variable}
 
