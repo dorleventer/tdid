@@ -1,12 +1,4 @@
 #' training random forest models
-#'
-#' @param Y Outcome (vector)
-#' @param X Covariates (matrix)
-#' @param num.trees Number of trees
-#' @param ... additional options for ranger
-#'
-#' @return A trained random forest model
-#'
 #' @importFrom ranger ranger
 train_rf <- function(Y, X, num.trees = 500, ...) {
   # If binary, force Y to factor and set probability estimation
@@ -29,22 +21,18 @@ train_rf <- function(Y, X, num.trees = 500, ...) {
   return(mod)
 }
 #' predicitions based on a random forest models
-#'
-#' @param X Covariates (matrix)
-#' @param mod Random forest model
-#'
-#' @return Predictions
-#'
-#' @importFrom ranger predict.ranger
+#' @importFrom stats predict
 pred_rf <- function(mod, X) {
   new_data <- data.frame(X)
   # Check if model is for probability estimation
   if(mod$forest$treetype == "Probability estimation") {
-    return(ranger::predict.ranger(mod, data = new_data)$predictions[,"1"])
+    return(stats::predict(mod, data = new_data)$predictions[,"1"])
   } else {
-    return(ranger::predict.ranger(mod, data = new_data)$predictions)
+    return(stats::predict(mod, data = new_data)$predictions)
   }
 }
+#' training neural network models
+#' @importFrom nnet nnet
 train_nn <- function(Y, X, size = 5, ...) {
   if(length(unique(Y)) == 2) {
     mod <- nnet::nnet(
@@ -67,22 +55,32 @@ train_nn <- function(Y, X, size = 5, ...) {
   }
   return(mod)
 }
+#' predicitions based on a random forest models
+#' @importFrom stats predict
 pred_nn <- function(mod, X) {
   new_data <- data.frame(X)
-  return(nnet::predict.nnet(mod, newdata = new_data))
+  return(stats::predict(mod, newdata = new_data))
 }
+#' training OLS models
+#' @importFrom stats lm
 train_ols <- function(Y, X, ...) {
   df_train <- as.data.frame(X)
   df_train$Y <- Y
   return(stats::lm(Y ~ ., data = df_train, ...))
 }
+#' predicitions based on a random forest models
+#' @importFrom stats predict
 pred_ols <- function(mod, X) {
   newdata <- as.data.frame(X)
   return(stats::predict(mod, newdata = newdata))
 }
+#' training logistic regression models
+#' @importFrom stats glm
 train_log = function(Y, X) {
   stats::glm(Y ~ X, family = stats::binomial(), data = data.frame(Y, X))
 }
+#' predicitions based on a random forest models
+#' @importFrom stats predict
 pred_log = function(mod, X) {
   stats::predict(mod, data.frame(X), type = "response")
 }
