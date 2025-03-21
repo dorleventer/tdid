@@ -1,0 +1,298 @@
+---
+title: "tdid-application"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tdid-application}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Replication
+
+First, for completness, here is the R code from the mixtape, where Scott discusses the TDID design. (Note that i made minor changes)
+
+```{r setup}
+
+library(tidyverse)
+library(haven)
+library(estimatr)
+
+read_data <- function(df)
+{
+  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
+                     df, sep = "")
+  df <- read_dta(full_path)
+  return(df)
+}
+
+abortion <- read_data("abortion.dta") %>% 
+  mutate(
+    repeal  = as_factor(repeal),
+    year    = as_factor(year),
+    fip     = as_factor(fip),
+    fa      = as_factor(fa),
+    younger = as_factor(younger),
+    yr      = as_factor(case_when(repeal == 1 & younger == 1 ~ 1, TRUE ~ 0)),
+    wm      = as_factor(case_when(wht == 1 & male == 1 ~ 1, TRUE ~ 0)),
+    wf      = as_factor(case_when(wht == 1 & male == 0 ~ 1, TRUE ~ 0)),
+    bm      = as_factor(case_when(wht == 0 & male == 1 ~ 1, TRUE ~ 0)),
+    bf      = as_factor(case_when(wht == 0 & male == 0 ~ 1, TRUE ~ 0))
+  ) %>% 
+  filter(bf == 1 & (age == 15 | age == 25))
+
+regddd <- lm_robust(lnr ~ younger*repeal*year + acc + pi + alcohol + crack + poverty + income + ur,
+                    data = abortion, weights = totpop, clusters = fip)
+
+abortion_plot <- tibble(
+  sd = regddd$std.error[58:72],
+  mean = regddd$coefficients[58:72],
+  year = c(1986:2000))
+
+abortion_plot %>% 
+  ggplot(aes(x = year, y = mean)) + 
+  geom_point()+
+  geom_hline(yintercept = 0) +
+  geom_errorbar(aes(ymin = mean-sd*1.96, ymax = mean+sd*1.96), width = 0.2,
+                position = position_dodge(0.05)) + 
+  ylim(-1, 1) + 
+  scale_x_continuous(breaks = 1986:1995, limits = c(1985.5, 1995.5))
+```
+
+# The design
+
+First, lets use the notation in the paper for this application. 
+
+- Time periods ($t$) are years.
+- States which repeal abortion early ($E=1986$) vs late ($E=1989$). 
+- Groups are young ($G_i=15-19$) and old ($G_i=25-29$). 
+
+# DID with controls estimators by group
+
+This is the data for the analysis
+
+```{r}
+abortion <- read_data("abortion.dta") %>% 
+  mutate(
+    repeal  = as.numeric(repeal),
+    year    = as.numeric(year),
+    younger = as.numeric(younger),
+    bf      = as.numeric(case_when(wht == 0 & male == 0 ~ 1, TRUE ~ 0))
+  ) %>% 
+  filter(bf == 1 & (age == 15 | age == 25))
+```
+
+Lets rename the variables into our notation
+
+```{r}
+data_analysis <- abortion |> 
+  select(Y = lnr, 
+         id, totpop, fip,
+         W = repeal,
+         time = year, 
+         group = younger,
+         acc, pi, alcohol, crack, poverty, income, ur)
+```
+
+And run DID, with 1993 as the reference year, separately by group. 
+
+First, lets code a data preparation function, to make a 2-by-2 comparison
+
+```{r}
+# data_prep = function(data, target_year, reference_year, control_formula) {
+#   
+#   # drop NAs
+#   data = data |> tidyr::drop_na()
+#   
+#   # make panel
+#   time_vec  <- data[["time"]]
+#   data = data[which(time_vec == target_year | time_vec == reference_year),]
+#   data = BMisc::makeBalancedPanel(data, "id", "time")
+#   
+#   # construct a 2-by-2 data frame
+#   time_vec      <- data[["time"]]
+#   id_vec        <- data[["id"]]
+#   y_vec         <- data[["Y"]]
+#   treat_vec     <- data[["W"]]
+#   weight_vec    <- data[["totpop"]]
+#   cluster_vec   <- data[["fip"]]
+#   group_var     <- data[["group"]]
+# 
+#   ids      <- id_vec[time_vec == target_year]
+#   y1       <- y_vec[time_vec == reference_year]
+#   y2       <- y_vec[time_vec == target_year]
+#   y_diff   <- y2 - y1
+#   W        <- treat_vec[time_vec == target_year]
+#   weights  <- weight_vec[time_vec == target_year]
+#   clusters <- cluster_vec[time_vec == target_year]
+#   groups   <- group_var[time_vec == target_year]
+#   
+#   # construct covariate matrix
+#   if (inherits(control_formula, "formula")) {
+#     formula_obj <- control_formula
+#   } else {
+#     formula_obj <- as.formula(paste0("~", control_formula))
+#   }
+# 
+#   X <- stats::model.matrix(
+#     formula_obj,
+#     stats::model.frame(formula_obj, data = data[time_vec == target_year, ], na.action = na.pass)
+#   )
+# 
+#   return(list(
+#     data_did = data.frame(ids = ids, y1 = y1, y2 = y2, y_diff = y_diff, W = W, weights = weights, clusters = clusters, groups = groups),
+#     X_mat = X[, -1, drop = FALSE]
+#   ))
+# }
+```
+
+Next, lets walk through the double robust approach
+
+Consider the object 
+$$\mathbb{E}\big[\mathbb{E}[Y_{t}\mid G=g^\prime,E=e^\prime,X]\mid G=g,E=e\big]$$
+This is equals to 
+$$\mathbb{E}\big[w_t(g,e)\mathbb{E}[Y_{t}\mid G=g^\prime,E=e^\prime,X]\big],\quad w_t(g,e)=\frac{1_{G_i=g,E_i=e}}{\mathbb{E}[1_{G_i=g,E_i=e}]}$$
+
+Next, we can write the outcome regression (OR) identification formula, like so 
+
+$$\mathbb{E}\big[w_{\mathrm{T}}(g,e)\mathbb{E}[Y_{t}\mid G=g^\prime,E=e^\prime,X]\big]=\mathbb{E}\big[w_t(g,e)m(g^\prime,e^\prime,t,X)\big],\quad m(g^\prime,e^\prime,t,X)=\mathbb{E}[Y_{t}\mid G=g^\prime,E=e^\prime,X=x]$$
+
+And the inverse probability weighting (IPW) identification formula, like so 
+
+$$\mathbb{E}\big[w_{\mathrm{T}}(g,e)\mathbb{E}[Y_{t}\mid G=g^\prime,E=e^\prime,X]\big]=\mathbb{E}\big[w_{\mathrm{C}}(g,g^\prime,e,e^\prime,X)Y_t\big],\quad w_{\mathrm{C}}(g,g^\prime,e,e^\prime,x)=\frac{1_{G_i=g^\prime,E_i=e^\prime}}{\mathbb{E}[1_{G_i=g,E_i=e}]}\frac{\mathbb{E}[1_{G_i=g,E_i=e}\mid X=x]}{\mathbb{E}[1_{G_i=g^\prime,E_i=e^\prime}\mid X=x]}$$
+
+When thinking about using these formulas in our context, we need to note the following. 
+
+```{r}
+# For example, consider the target year 1986, using 1993 as reference
+# prep = data_prep(data = data_analysis, target_year = 1986, reference_year = 1993, control_formula = "acc + pi + alcohol + crack + poverty + income + ur")
+# prep$data_did |> group_by(groups, W) |> count()
+```
+
+As we can see, there are 5 observations with $W=1$. 
+
+- Note that the covariate vector in the regression was acc + pi + alcohol + crack + poverty + income + ur 
+- That is, there are 7 covariates, and 5 observations
+- Below we use only 4 of these covariates, but still, very low
+- When doing OR in TDID, when of the regressions will use units with $W=1$ and $W=0$ (older black females in repeal states)
+- But we can't really run such a regression, so will use only IPW below (which uses all observations when calculating propensity scores)
+
+Lets code some functions to estimate logistic regressions for propensity scores
+
+```{r}
+# train_log = function(Y, X, weights) {
+#   glm(Y ~ ., family = binomial(), data = data.frame(Y, X), weights = weights)
+# }
+# pred_log = function(mod, X) {
+#   predict(mod, data.frame(X), type = "response")
+# }
+# learning_function <- function(Y, X, ids_out, ids_in, weights) {
+# 
+#   # For the non-crossfitting branch, only use the subset of observations in ids_in for training.
+#   train_idx <- which(ids_out %in% ids_in)
+#   mod <- train_log(Y[train_idx], X[train_idx, , drop = FALSE], weights[train_idx])
+#   res <- as.numeric(pred_log(mod, X))
+#   
+#   return(res)
+# }
+```
+
+This is a TDID hand written function, based on IPW identification
+
+```{r}
+# tdid_function = function(data_analysis, target_year, reference_year, control_formula) {
+#   prep = data_prep(data = data_analysis, target_year, reference_year, control_formula)
+#   
+#   data_did <- prep$data_did
+#   ids <- data_did$ids
+#   
+#   indt_1 <- as.numeric(data_did$W == 1 & data_did$group == 1)
+#   indc_1 <- as.numeric(data_did$W == 0 & data_did$group == 1)
+#   indt_0 <- as.numeric(data_did$W == 1 & data_did$group == 0)
+#   indc_0 <- as.numeric(data_did$W == 0 & data_did$group == 0)
+#   
+#   Y_diff <- data_did$y_diff
+#   X_mat <- prep$X_mat
+#   
+#   # Propensity scores
+#   ps_1_t <- learning_function(Y = indt_1, X = X_mat, ids_out = ids, ids_in = ids, weights = data_did$weights)
+#   ps_0_t <- learning_function(Y = indt_0, X = X_mat, ids_out = ids, ids_in = ids, weights = data_did$weights)
+#   ps_1_c <- learning_function(Y = indc_1, X = X_mat, ids_out = ids, ids_in = ids, weights = data_did$weights)
+#   ps_0_c <- learning_function(Y = indc_0, X = X_mat, ids_out = ids, ids_in = ids, weights = data_did$weights)
+#   
+#   # make sure non-zero
+#   ps_0_t = pmax(ps_0_t, 1e-4)
+#   ps_1_c = pmax(ps_1_c, 1e-4)
+#   ps_0_c = pmax(ps_0_c, 1e-4)
+#   
+#   # Construct weights
+#   # Construct weights
+#   w_1_t       <- (indt_1) / mean(indt_1)
+#   w_0_t       <- (indt_0) / mean(indt_0)
+#   w_1_t_1_c   <- (indc_1 * ps_1_t / ps_1_c) / mean(indt_1)
+#   w_1_t_0_t   <- (indt_0 * ps_1_t / ps_0_t) / mean(indt_1)
+#   w_1_t_0_c   <- (indc_0 * ps_1_t / ps_0_c) / mean(indt_1)
+#   w_0_t_0_c   <- (indc_0 * ps_0_t / ps_0_c) / mean(indt_1)
+#   
+#   # Calculate score functions
+#   psi_ipw_1    <- (w_1_t - w_1_t_1_c) * (Y_diff)
+#   psi_ipw_0    <- (w_0_t - w_0_t_0_c) * (Y_diff)
+#   psi_wipw_1_0 <- (w_1_t_0_t - w_1_t_0_c) * Y_diff
+#   psi_diff_dr <- psi_ipw_1 - psi_ipw_0
+#   psi_tdid    <- psi_ipw_1 - psi_wipw_1_0
+#   
+#   # # Influence function adjustment for standard error estimation
+#   eta.est         <- psi_tdid - mean(psi_tdid) * w_1_t
+#   eta.diff_dr    <- psi_diff_dr - mean(psi_diff_dr) * w_1_t
+#   
+#   # Return a summary data frame of estimates
+#   return(data.frame(
+#     est              = mean(psi_tdid),
+#     se.est           = sd(eta.est) / sqrt(length(eta.est)),
+#     diff_dr          = mean(psi_diff_dr),
+#     se.diff_dr       = sd(eta.diff_dr) / sqrt(length(eta.diff_dr)),
+#     est_wdr_1_0      = mean(psi_wipw_1_0),
+#     est_1            = mean(psi_ipw_1),
+#     est_0            = mean(psi_ipw_0),
+#     N                = length(psi_tdid)
+#   ))
+# }
+```
+
+Now can calculate DID by group and year
+
+```{r}
+# control_formula = "acc + alcohol + crack + ur"
+# reference_year = 1993
+# results = data.frame() 
+# for(target_year in c(1986:1992, 1994:1996)) {
+#     res = tdid_function(data_analysis, target_year, reference_year, control_formula) 
+#     results = rbind(results, 
+#                     res |> mutate(time = target_year))
+# }
+```
+
+And plot this out
+
+```{r}
+# results |> 
+#   ggplot(aes(x = time)) + 
+#   geom_point(aes(y = est, color = "Correct TDID")) + 
+#   geom_point(aes(y = diff_dr, color = "Wrong TDID")) + 
+#   scale_x_continuous(breaks = 1986:1996)
+# 
+# results |> 
+#   ggplot(aes(x = time)) + 
+#   geom_point(aes(y = est_1, color = "DID Group 1 (Young)")) + 
+#   geom_point(aes(y = est_0, color = "DID Group 0 (Old)")) + 
+#   geom_point(aes(y = est_wdr_1_0, color = "Weighted DID Group 0 (Old)")) + 
+#   scale_x_continuous(breaks = 1986:1996)
+```
+
+Using a similar function
