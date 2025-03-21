@@ -11,9 +11,9 @@ train_rf(Y, X, num.trees = 500, ...)
 
 \item{X}{Covariates (matrix)}
 
-\item{...}{additional options for ranger}
+\item{num.trees}{Number of trees}
 
-\item{num.tree}{Number of trees}
+\item{...}{additional options for ranger}
 }
 \value{
 A trained random forest model

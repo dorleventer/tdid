@@ -2,7 +2,7 @@
 #'
 #' @param Y Outcome (vector)
 #' @param X Covariates (matrix)
-#' @param num.tree Number of trees
+#' @param num.trees Number of trees
 #' @param ... additional options for ranger
 #'
 #' @return A trained random forest model
