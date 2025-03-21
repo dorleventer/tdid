@@ -9,6 +9,7 @@
 #' @param group_name Name of group variable
 #' @param treat_name Name of treatment variable
 #' @param control_formula Covariates to use in estimation of propensity score and outcome regression
+#' @param type Type of model for outcome regression and propensity score estimation. Options are "parametric" (default) for OLS and logisitic regressions, "rf" for Random Forest, and "nn" for Neural Network
 #' @param crossfit If true, estimation is done using 2-fold cross fitting
 #'
 #' @return DID and TDID estimates
@@ -85,15 +86,15 @@ drtdid <- function(data,
   # Return a summary data frame of estimates
   return(data.frame(
     est        = mean(psi_tdid),
-    se         = sd(eta) / sqrt(length(eta_diff_dr)),
+    se         = stats::sd(eta) / sqrt(length(eta_diff_dr)),
     diff_dr    = mean(psi_diff_dr),
-    diff_dr.se = sd(eta_diff_dr) / sqrt(length(eta_diff_dr)),
+    diff_dr.se = stats::sd(eta_diff_dr) / sqrt(length(eta_diff_dr)),
     wdr        = mean(psi_wdr_A_B),
-    wdr.se     = sd(psi_wdr_A_B) / sqrt(length(psi_wdr_A_B)),
+    wdr.se     = stats::sd(psi_wdr_A_B) / sqrt(length(psi_wdr_A_B)),
     dr_A       = mean(psi_dr_A),
-    dr_A.se    = sd(eta_dr_A) / sqrt(length(eta_dr_A)),
+    dr_A.se    = stats::sd(eta_dr_A) / sqrt(length(eta_dr_A)),
     dr_B       = mean(psi_dr_B),
-    dr_B.se    = sd(eta_dr_B) / sqrt(length(eta_dr_B)),
+    dr_B.se    = stats::sd(eta_dr_B) / sqrt(length(eta_dr_B)),
     N          = length(psi_tdid)
   ))
 }

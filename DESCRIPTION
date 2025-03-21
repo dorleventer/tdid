@@ -19,7 +19,8 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports: 
-    dplyr,
     stats,
     tidyr,
-    BMisc
+    BMisc,
+    ranger,
+    nnet

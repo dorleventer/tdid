@@ -31,6 +31,8 @@ drtdid(
 
 \item{control_formula}{Covariates to use in estimation of propensity score and outcome regression}
 
+\item{type}{Type of model for outcome regression and propensity score estimation. Options are "parametric" (default) for OLS and logisitic regressions, "rf" for Random Forest, and "nn" for Neural Network}
+
 \item{crossfit}{If true, estimation is done using 2-fold cross fitting}
 }
 \value{

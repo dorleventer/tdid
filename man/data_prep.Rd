@@ -25,6 +25,8 @@ data_prep(
 
 \item{outcome_name}{Name of outcome variable}
 
+\item{treat_name}{Name of treatment / eligiblty variable}
+
 \item{control_formula}{Covariates to use in estimation of propensity score and outcome regression}
 }
 \description{

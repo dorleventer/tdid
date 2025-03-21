@@ -7,6 +7,8 @@
 #'
 #' @return A 2-by-2-by-2 dataset
 #'
+#' @importFrom tidyr drop_na
+#' @importFrom stats rnorm rbinom
 #' @export
 example_dgp <- function(n,seed = NULL) {
   if (!is.null(seed)) set.seed(seed) else set.seed(42)
@@ -16,15 +18,15 @@ example_dgp <- function(n,seed = NULL) {
 
   # Draw the time-invariant covariate X based on group membership
   X <- ifelse(group == "a",
-              rnorm(n, mean = 1, sd = 1),
-              rnorm(n, mean = 3, sd = 1))
+              stats::rnorm(n, mean = 1, sd = 1),
+              stats::rnorm(n, mean = 3, sd = 1))
 
   # Treatment assignments:
-  W <- rbinom(n, size = 1, prob = .5)
+  W <- stats::rbinom(n, size = 1, prob = .5)
 
   # Generate error terms for each period
-  e1 <- rnorm(n, mean = 0, sd = 1)
-  e2 <- rnorm(n, mean = 0, sd = 1)
+  e1 <- stats::rnorm(n, mean = 0, sd = 1)
+  e2 <- stats::rnorm(n, mean = 0, sd = 1)
 
   # Potential outcomes for the untreated (0) state
   Y1_0 <- X + e1                      # Period 1 outcome (only untreated)

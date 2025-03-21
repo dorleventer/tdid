@@ -5,6 +5,7 @@
 #' @param time_name Name of time variable
 #' @param id_name Name of id variable
 #' @param group_name Name of group variable
+#' @param treat_name Name of treatment / eligiblty variable
 #' @param control_formula Covariates to use in estimation of propensity score and outcome regression
 #'
 #' @export
@@ -29,7 +30,7 @@ data_prep <- function(data,
   group_vec <- data[[group_name]]
 
   # Check that group_vec contains exactly the expected two groups
-  if(!all(sort(unique(group_vec)) == sort(group_levels))){
+  if(!all(sort(unique(group_vec)) == sort(c("a","b")))){
     stop("Group variable does not match expected levels: c(a, b)")
   }
 
@@ -55,7 +56,7 @@ data_prep <- function(data,
 
   X <- stats::model.matrix(
     formula_obj,
-    stats::model.frame(formula_obj, data = data[time_vec == t2, ], na.action = na.pass)
+    stats::model.frame(formula_obj, data = data[time_vec == t2, ], na.action = stats::na.pass)
   )
 
   return(list(

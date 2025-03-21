@@ -22,9 +22,9 @@ pred_rf <- function(mod, X) {
   new_data <- data.frame(X)
   # Check if model is for probability estimation
   if(mod$forest$treetype == "Probability estimation") {
-    return(predict(mod, data = new_data)$predictions[,"1"])
+    return(ranger::predict(mod, data = new_data)$predictions[,"1"])
   } else {
-    return(predict(mod, data = new_data)$predictions)
+    return(ranger::predict.ranger(mod, data = new_data)$predictions)
   }
 }
 train_nn <- function(Y, X, size = 5, ...) {
@@ -51,22 +51,22 @@ train_nn <- function(Y, X, size = 5, ...) {
 }
 pred_nn <- function(mod, X) {
   new_data <- data.frame(X)
-  return(predict(mod, newdata = new_data))
+  return(nnet::predict.nnet(mod, newdata = new_data))
 }
 train_ols <- function(Y, X, ...) {
   df_train <- as.data.frame(X)
   df_train$Y <- Y
-  return(lm(Y ~ ., data = df_train, ...))
+  return(stats::lm(Y ~ ., data = df_train, ...))
 }
 pred_ols <- function(mod, X) {
   newdata <- as.data.frame(X)
-  return(predict(mod, newdata = newdata))
+  return(stats::predict(mod, newdata = newdata))
 }
 train_log = function(Y, X) {
-  glm(Y ~ X, family = binomial(), data = data.frame(Y, X))
+  stats::glm(Y ~ X, family = stats::binomial(), data = data.frame(Y, X))
 }
 pred_log = function(mod, X) {
-  predict(mod, data.frame(X), type = "response")
+  stats::predict(mod, data.frame(X), type = "response")
 }
 
 learning_function <- function(Y, X, ids_out, ids_in, type = "parametric", crossfit = FALSE, seed = NULL, ...) {
