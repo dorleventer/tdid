@@ -1,3 +1,13 @@
+#' training random forest models
+#'
+#' @param Y Outcome (vector)
+#' @param X Covariates (matrix)
+#' @param num.tree Number of trees
+#' @param ... additional options for ranger
+#'
+#' @return A trained random forest model
+#'
+#' @importFrom ranger ranger
 train_rf <- function(Y, X, num.trees = 500, ...) {
   # If binary, force Y to factor and set probability estimation
   if(length(unique(Y)) == 2) {
@@ -18,11 +28,19 @@ train_rf <- function(Y, X, num.trees = 500, ...) {
   }
   return(mod)
 }
+#' predicitions based on a random forest models
+#'
+#' @param X Covariates (matrix)
+#' @param mod Random forest model
+#'
+#' @return Predictions
+#'
+#' @importFrom ranger predict.ranger
 pred_rf <- function(mod, X) {
   new_data <- data.frame(X)
   # Check if model is for probability estimation
   if(mod$forest$treetype == "Probability estimation") {
-    return(ranger::predict(mod, data = new_data)$predictions[,"1"])
+    return(ranger::predict.ranger(mod, data = new_data)$predictions[,"1"])
   } else {
     return(ranger::predict.ranger(mod, data = new_data)$predictions)
   }

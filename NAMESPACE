@@ -3,6 +3,7 @@
 export(data_prep)
 export(drtdid)
 export(example_dgp)
+importFrom(ranger,ranger)
 importFrom(stats,rbinom)
 importFrom(stats,rnorm)
 importFrom(tidyr,drop_na)
