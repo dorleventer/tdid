@@ -1,11 +1,11 @@
 #' Data prepartion
 #'
 #' @param data The data
-#' @param yname Name of outcome variable
-#' @param tname Name of time variable
-#' @param idname Name of id variable
-#' @param gname Name of group variable
-#' @param xformula Covariates to use in estimation of propensity score and outcome regression
+#' @param outcome_name Name of outcome variable
+#' @param time_name Name of time variable
+#' @param id_name Name of id variable
+#' @param group_name Name of group variable
+#' @param control_formula Covariates to use in estimation of propensity score and outcome regression
 #'
 #' @export
 data_prep <- function(data,
@@ -14,8 +14,7 @@ data_prep <- function(data,
                       id_name = "id",
                       outcome_name = "Y",
                       treat_name = "W",
-                      control_formula = "X",
-                      group_levels = c("a", "b")) {
+                      control_formula = "X") {
 
   # drop NAs
   data = data |> tidyr::drop_na()
